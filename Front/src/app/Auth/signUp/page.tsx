@@ -1,137 +1,148 @@
 "use client";
-import { useState, useEffect } from "react";
-import PhoneNumber from "./opt";
+import { useState, useEffect, startTransition } from "react";
+import Otp from "./otp";
 import { loginAction, FormState } from "./action";
 import { useActionState } from "react";
 import { getAccessToken } from "@/libb/token";
+import { toast } from "sonner";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+
 
 const signupSchema = z
   .object({
-    email: z.string().email("ایمیل معتبر نیست"),
-    password: z.string().min(8, "رمز عبور باید حداقل ۸ کاراکتر باشد"),
-    confirmPassword: z.string(),
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    confirmPassword: z.string().min(1, "Please confirm your password"),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "رمز عبور و تکرار آن یکی نیستند",
-    path: ["confirmPassword"], // خطا روی این فیلد نمایش داده شود
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
   });
+
+type SignupInput = z.infer<typeof signupSchema>;
 
 const initialState: FormState = {
   error: null,
   success: null,
 };
 
-export default function signUp() {
-  const [states, setStates] = useState(1);
-  const [state, formAction, isPending] = useActionState(
-    loginAction,
-    initialState,
-  );
-  const [showCondirmPassword, setShowCondirmPassword] = useState(false);
+export default function SignUp() {
+  const [states, setStates] = useState(2);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showRepeatPassword, setShowRepeatPassword] = useState(false);
+
+  const [state, formAction, isPending] = useActionState(loginAction, initialState);
 
   useEffect(() => {
-    // یک تابع داخلی async ایجاد می‌کنیم
-    const fetchToken = async () => {
-      const x = await getAccessToken();
-      console.log(x, "ssss"); // اینجا مقدار واقعی "ss" چاپ می‌شود
-    };
+    console.log(state)
+    if (state?.success) {
+      setStates(2)
+    }
+    
+    if (state?.error) {
+      toast.error(state.error); 
+    }
+  }, [state]);
 
-    fetchToken();
-  }, []); // این فقط یک بار موقع لود شدن اجرا می‌شود
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<SignupInput>({
+    resolver: zodResolver(signupSchema),
+  });
 
-  const toggleshowCondirmPasswordVisibility = () => {
-    setShowCondirmPassword((prev) => !prev);
+
+const processForm = (data: SignupInput) => {
+    const formData = new FormData();
+    formData.append("email", data.email);
+    formData.append("password", data.password);
+    startTransition(() => {
+      formAction(formData);
+    });
   };
 
-  if (states == 1) {
-    return (
-      <div className="bg-[#ffffe3] h-screen pt-32">
-        {" "}
-        <div className=" px-4 py-10 bg-[#6d8196] shadow-lg rounded-3xl sm:p-20 mx-5 md:max-w-xl md:mx-auto">
-          <div className="max-w-md mx-auto">
-            <div>
-              <h1 className="text-2xl font-semibold">Login</h1>
-            </div>
-            <form action={formAction} className="divide-y divide-gray-200">
-              <div className="py-8 text-base leading-6 space-y-4 text-gray-700 sm:text-lg sm:leading-7">
-                <div className="relative">
-                  <input
-                    autoComplete="off"
-                    id="email"
-                    name="email"
-                    type="text"
-                    suppressHydrationWarning
-                    className="peer placeholder-transparent text-white h-10 w-full border-b-2 border-gray-300 focus:outline-none focus:border-rose-600"
-                    placeholder="Email"
-                  />
-                  <label
-                    htmlFor="email"
-                    className="absolute left-0 -top-3.5 text-gray-100 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-200 peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-300 peer-focus:text-sm"
-                  >
-                    Email Address
-                  </label>
-                </div>
-                <div className="relative mt-6">
-                  <input
-                    autoComplete="new-password"
-                    suppressHydrationWarning
-                    id="password"
-                    name="password"
-                    // در اینجا باید متغیر حالت (state) را برای تغییر بین text و password قرار دهی
-                    type={showCondirmPassword ? "text" : "password"}
-                    className="peer placeholder-transparent text-white h-10 w-full border-b-2 border-gray-300 focus:outline-none focus:border-rose-600 bg-transparent pr-10" // pr-10 برای اینکه متن زیر آیکون نرود
-                    placeholder="Password"
-                  />
+  if (states !== 1) return <Otp />;
 
-                  <label
-                    htmlFor="password"
-                    className="absolute left-0 -top-3.5 text-gray-100 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-200 peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-300 peer-focus:text-sm"
-                  >
-                    Password
-                  </label>
-
-                  {/* آیکون چشم - خارج از لیبل و با موقعیت مطلق در سمت راست */}
-                  <div className="absolute right-0 top-2 cursor-pointer z-10">
-                    <img
-                      onClick={toggleshowCondirmPasswordVisibility}
-                      src="https://img.icons8.com/ios-glyphs/30/visible--v1.png"
-                      alt="Toggle Password Visibility"
-                      className="opacity-70 hover:opacity-100 invert" // invert برای اینکه روی پس‌زمینه تیره سفید دیده شود
-                      width="20"
-                      height="20"
-                    />
-                  </div>
-                </div>
-
-                <div className="relative mt-6">
-                  <input
-                    autoComplete="new-password"
-                    id="repeat password"
-                    name="repeat password"
-                    type="repeat password"
+  return (
+    <div className="bg-linear-to-r from-pink-300 via-purple-300 to-indigo-400 h-screen pt-32">
+      <div className="px-4 py-10 rounded-3xl sm:p-20 mx-5 md:max-w-xl md:mx-auto backdrop-blur-md">
+        <div className="max-w-md mx-auto">
+          <h1 className="text-2xl text-black font-semibold">Sign Up</h1>
+          
+          <form onSubmit={handleSubmit(processForm)} className="divide-y divide-gray-200">
+            <div className="py-8 text-base leading-6 text-gray-800 space-y-4 sm:text-lg sm:leading-7">
+              
+              <div className="relative">
+                <input
+                autoComplete="email"
+                  {...register("email")}
+                  type="text"
+                  id="email"
                     suppressHydrationWarning
-                    className="peer placeholder-transparent text-white h-10 w-full border-b-2 border-gray-300 focus:outline-none focus:border-rose-600"
-                    placeholder="repeat password"
-                  />
-                  <label
-                    htmlFor="repeat password"
-                    className="absolute left-0 -top-3.5 text-gray-100 text-sm peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-200 peer-placeholder-shown:top-2 transition-all peer-focus:-top-3.5 peer-focus:text-gray-300 peer-focus:text-sm"
-                  >
-                    Repeat Password
-                  </label>
-                </div>
-                <div className="relative">
-                  <button className="bg-cyan-500 text-white rounded-md px-2 py-1">
-                    Submit
-                  </button>
-                </div>
+                  className="peer placeholder-transparent h-10 w-full border-b border-gray-500 focus:outline-none focus:border-black bg-transparent"
+                  placeholder="Email"
+                />
+                <label htmlFor="email" className="absolute left-0 -top-3.5 text-sm transition-all peer-placeholder-shown:top-2 peer-focus:-top-3.5">Email Address</label>
+                {errors.email && <p className="text-red-600 text-xs mt-1">{errors.email.message}</p>}
               </div>
-            </form>
-          </div>
+
+              <div className="relative mt-6">
+                <input
+                autoComplete="new-password"
+                  {...register("password")}
+                  id="password"
+                    suppressHydrationWarning
+                  type={showPassword ? "text" : "password"}
+                  className="peer placeholder-transparent h-10 w-full border-b border-gray-500 focus:outline-none focus:border-black bg-transparent pr-10"
+                  placeholder="Password"
+                />
+                <label htmlFor="password" className="absolute left-0 -top-3.5 text-sm transition-all peer-placeholder-shown:top-2 peer-focus:-top-3.5">Password</label>
+                <div 
+                  className="absolute right-0 top-2 cursor-pointer z-10"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  <img src="https://img.icons8.com/ios-glyphs/30/visible--v1.png" width="20" className="opacity-70" alt="toggle" />
+                </div>
+                {errors.password && <p className="text-red-600 text-xs mt-1">{errors.password.message}</p>}
+              </div>
+
+              <div className="relative mt-6">
+                <input
+                id="repeat password"
+                autoComplete="repeat password"
+                  {...register("confirmPassword")}
+                    suppressHydrationWarning
+                  type={showRepeatPassword ? "text" : "password"}
+                  className="peer placeholder-transparent h-10 w-full border-b border-gray-500 focus:outline-none focus:border-black bg-transparent"
+                  placeholder="Repeat Password"
+                />
+                <label htmlFor="repeat password" className="absolute left-0 -top-3.5 text-sm transition-all peer-placeholder-shown:top-2 peer-focus:-top-3.5">Repeat Password</label>
+                <div 
+                  className="absolute right-0 top-2 cursor-pointer z-10"
+                  onClick={() => setShowRepeatPassword(!showRepeatPassword)}
+                >
+                  <img src="https://img.icons8.com/ios-glyphs/30/visible--v1.png" width="20" className="opacity-70" alt="toggle" />
+                </div>
+                {errors.confirmPassword && <p className="text-red-600 text-xs mt-1">{errors.confirmPassword.message}</p>}
+              </div>
+
+              {state?.error && <p className="text-center text-red-700 font-bold">{state.error}</p>}
+
+              <div className="relative pt-4">
+                <button 
+                  disabled={isPending}
+                  className="bg-cyan-500 text-white rounded-md px-4 py-2 disabled:bg-gray-400 w-full"
+                >
+                  {isPending ? "Pending" : "SignUp"}
+                </button>
+              </div>
+            </div>
+          </form>
         </div>
       </div>
-    );
-  }
-  return <PhoneNumber />;
+    </div>
+  );
 }

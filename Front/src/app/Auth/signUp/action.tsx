@@ -14,20 +14,32 @@ export async function loginAction(
 ): Promise<FormState> {
   const email = formData.get("email") as string;
   const password = formData.get("password") as string;
-  console.log(email, password);
 
-  if (!email || !password) {
-    return { error: "فیلدها نباید خالی باشند", success: null };
-  }
   try {
-    /* const response = await api.post("https://api.example.com/login", {
-      email,
-      password,
-    }); */
-    console.log("before");
-    await setAccessToken("hello");
-    console.log("after");
-    return { success: "کوکی با موفقیت ذخیره شد", error: null };
+    const response = await fetch("http://127.0.0.1:8000/api/users/register/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: email,
+        password: password,
+        password2: password,
+      }),
+    });
+    const data = await response.json();
+    console.log(data);
+    if (!response.ok) {
+      console.log("Django Error:", data);
+
+      const errorMessage =
+        data.email?.at(-1) ||
+        data.password?.at(-1) ||
+        data.detail ;
+      return { success: null, error: errorMessage };
+    }
+
+    return { success: "successed", error: null };
   } catch (error: any) {
     if (axios.isAxiosError(error)) {
       const errorMessage =

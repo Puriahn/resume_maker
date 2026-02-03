@@ -3,21 +3,20 @@ import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { getAccessToken,setAccessToken,
   getRefreshToken,
   clearTokens, } from "./token";
-export const base_url="http://localhost:8000/api/"
-//export const base_url = "https://api.pri22.com/api/";
+export const base_url="http://127.0.0.1:8000"
 const api = axios.create({
   baseURL: base_url,
   withCredentials: true,
 });
 
-// Flag to track if a refresh is in progress
+
 let isRefreshing = false;
 let failedQueue: Array<{
   resolve: (value?: unknown) => void;
   reject: (reason?: unknown) => void;
 }> = [];
 
-// Helper function to process queued requests
+
 const processQueue = (error: any, token: string | null = null) => {
   failedQueue.forEach((promise) => {
     if (error) {
