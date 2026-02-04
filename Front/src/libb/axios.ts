@@ -3,7 +3,7 @@ import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { getAccessToken,setAccessToken,
   getRefreshToken,
   clearTokens, } from "./token";
-export const base_url="http://127.0.0.1:8000"
+export const base_url="http://127.0.0.1:8000/api/users"
 const api = axios.create({
   baseURL: base_url,
   withCredentials: true,
