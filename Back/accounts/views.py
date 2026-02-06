@@ -17,7 +17,7 @@ class UserRegisterView(APIView):
             if send_otp_via_email(user.email):
                 return Response("Please Check Your Email Address for Verification Code", status=status.HTTP_201_CREATED)
             else:
-                user.delete()
+                # user.delete()
                 return Response({'error': "Error While sending email, Try again!"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -99,4 +99,32 @@ class UserListView(generics.ListAPIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = UserSerializer
     queryset = User.objects.all()
+
+
+class AddEducationView(generics.CreateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = EducationSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class AddSkillView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        skill_name = request.data.get('name')
+        if not skill_name:
+            return Response({'Error': 'Skill name is required!'}, status=status.HTTP_400_BAD_REQUEST)
+        skill, created = Skill.objects.get_or_create(name=skill_name)
+        request.user.skills.add(skill)
+
+        return Response({'message': f"Skill '{skill_name}' added to your profile"}, status=status.HTTP_201_CREATED)
+
+class UserProfileView(generics.RetrieveUpdateAPIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = UserSerializer
+
+    def get_object(self):
+        return self.request.user
 

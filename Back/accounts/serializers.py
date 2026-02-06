@@ -1,6 +1,6 @@
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
-from .models import User
+from .models import *
 from django.core import exceptions
 
 
@@ -27,11 +27,25 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         return user
 
 
+class SkillSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Skill
+        fields = ('id', 'name')
+
+
+class EducationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Education
+        fields = ('id', 'institute_name', 'start_date', 'end_date')
+
+
 class UserSerializer(serializers.ModelSerializer):
+    educations = EducationSerializer(many=True, read_only=True)
+    skills = SkillSerializer(many=True, read_only=True)
 
     class Meta:
         model = User
-        fields = ('id', 'email')
+        fields = ('id', 'email', 'full_name', 'phone_number', 'job_title', 'summary', 'image', 'skills', 'educations')
 
 
 class VerifyOtpSerializer(serializers.Serializer):
