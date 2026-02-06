@@ -33,3 +33,12 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'email')
 
+
+class VerifyOtpSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    otp = serializers.CharField()
+
+
+class ResendOtpSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
