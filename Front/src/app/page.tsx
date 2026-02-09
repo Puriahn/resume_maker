@@ -1,5 +1,5 @@
 "use client";
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import Resume from "./resume";
 import SideBar from "./SideBar";
 import {
@@ -26,42 +26,38 @@ export default function Home() {
     { id: "education", label: "Education" },
     { id: "skills", label: "Skills" },
   ]);
-  const [resumeData, setResumeData] = useState(null); // برای کل دیتای محتوایی
+  const [resumeData, setResumeData] = useState(null);
   const [loading, setLoading] = useState(true);
 
-useEffect(() => {
+  // ۱. دریافت اطلاعات اولیه از بک‌اِند
+  useEffect(() => {
     const fetchResume = async () => {
       try {
         const response = await api.get("profile/");
-        const data = response.data;
-        
-        setResumeData(data);
+        setResumeData(response.data);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
     };
-
     fetchResume();
   }, []);
 
-const sensors = useSensors(
-  useSensor(PointerSensor, {
-    activationConstraint: {
-      distance: 5,
-    },
-  }),
-  useSensor(TouchSensor, {
-    // این بخش خیلی مهمه:
-    activationConstraint: {
-      delay: 250, // باید ۲۵۰ میلی‌ثانیه انگشت رو نگه داره تا درگ شروع بشه
-      tolerance: 5, // اگه انگشتش لرزید و بیشتر از ۵ پیکسل تکون خورد، درگ کنسل بشه و اسکرول کنه
-    },
-  })
-);
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    })
+  );
 
-  const handleDragEnd = (event: DragEndEvent) => {
+  // ۲. جابه‌جایی در لحظه (همزمان شدن سایدبار و رزومه)
+  const handleDragOver = (event: DragEndEvent) => {
     const { active, over } = event;
     if (over && active.id !== over.id) {
       setSections((items) => {
@@ -71,20 +67,42 @@ const sensors = useSensors(
       });
     }
   };
-  console.log(resumeData)
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    // اینجا می‌توانید در صورت نیاز ترتیب جدید را در دیتابیس ذخیره کنید
+    console.log("New sections order:", sections);
+  };
+
+  if (loading) return <div className="flex justify-center items-center h-screen">Loading...</div>;
 
   return (
-    <DndContext
-      id="resume-dnd-context"
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragEnd={handleDragEnd}
-      modifiers={[restrictToVerticalAxis, restrictToParentElement]}
-    >
-      <div className="flex min-h-screen bg-linear-to-r from-pink-300 via-purple-300 to-indigo-400">
+    <div className="flex min-h-screen bg-linear-to-r from-pink-300 via-purple-300 to-indigo-400">
+      
+      {/* محدوده درگ فقط برای سایدبار تعریف شده تا گیج نزند */}
+      <DndContext
+        id="sidebar-dnd-context"
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragOver={handleDragOver} // عامل حرکت همزمان
+        onDragEnd={handleDragEnd}
+        modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+      >
         <SideBar sections={sections} />
-        <Resume sections={sections}  />
-      </div>
-    </DndContext>
+      </DndContext>
+
+      {/* رزومه خارج از کانتکست است اما چون استیت sections را می‌گیرد، همزمان تغییر می‌کند */}
+      <main className="flex-1 p-5 flex justify-center overflow-y-auto">
+         <Resume sections={sections} />
+      </main>
+
+      {/* دکمه ذخیره کلی (اختیاری) */}
+      <button 
+        onClick={() => console.log("Final Save:", resumeData, sections)}
+        className="fixed bottom-8 right-8 bg-blue-600 text-white px-6 py-3 rounded-full shadow-2xl hover:bg-blue-700 transition-all"
+      >
+        Save Changes
+      </button>
+      
+    </div>
   );
 }
