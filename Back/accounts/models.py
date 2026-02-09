@@ -10,13 +10,18 @@ class User(AbstractBaseUser, PermissionsMixin):
     image = models.ImageField(null=True, blank=True)
     full_name = models.CharField(max_length=255, null=True, blank=True)
     job_title = models.CharField(max_length=255, null=True, blank=True)
-    summary = models.TextField(null=True, blank=True)
 
     skills = models.ManyToManyField('Skill', blank=True)
 
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
+
+    section_order = models.CharField(
+        max_length=255,
+        blank=True,
+        default='',  # e.g. "header,skills,experience,education,summary"
+    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
@@ -37,18 +42,22 @@ class User(AbstractBaseUser, PermissionsMixin):
         return self.is_admin
 
 
+class Summary(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='summary')
+    description = models.TextField(null=True, blank=True)
+
+
 class Education(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='educations')
     institute_name = models.CharField(max_length=255)
-    start_date = models.DateField()
-    end_date = models.DateField(null=True, blank=True)
+    date = models.CharField(max_length=255, null=True, blank=True)
 
 
 class Experience(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='experiences')
     company_name = models.CharField(max_length=255)
     info = models.TextField(null=True, blank=True)
-    start_date = models.DateField()
-    end_date = models.DateField(null=True, blank=True)
+    date = models.CharField(max_length=255, null=True, blank=True)
 
 
 class Skill(models.Model):
