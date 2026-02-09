@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState,useEffect } from "react";
 import Resume from "./resume";
 import SideBar from "./SideBar";
 import {
@@ -16,6 +16,7 @@ import {
   restrictToVerticalAxis,
   restrictToParentElement,
 } from "@dnd-kit/modifiers";
+import api from "@/libb/axios";
 
 export default function Home() {
   const [sections, setSections] = useState([
@@ -25,6 +26,25 @@ export default function Home() {
     { id: "education", label: "Education" },
     { id: "skills", label: "Skills" },
   ]);
+  const [resumeData, setResumeData] = useState(null); // برای کل دیتای محتوایی
+  const [loading, setLoading] = useState(true);
+
+useEffect(() => {
+    const fetchResume = async () => {
+      try {
+        const response = await api.get("profile/");
+        const data = response.data;
+        
+        setResumeData(data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchResume();
+  }, []);
 
 const sensors = useSensors(
   useSensor(PointerSensor, {
@@ -51,6 +71,7 @@ const sensors = useSensors(
       });
     }
   };
+  console.log(resumeData)
 
   return (
     <DndContext
@@ -62,7 +83,7 @@ const sensors = useSensors(
     >
       <div className="flex min-h-screen bg-linear-to-r from-pink-300 via-purple-300 to-indigo-400">
         <SideBar sections={sections} />
-        <Resume sections={sections} />
+        <Resume sections={sections}  />
       </div>
     </DndContext>
   );
