@@ -32,31 +32,42 @@ const processQueue = (error: any, token: string | null = null) => {
 // Function to refresh the access token
 const refreshAccessToken = async (): Promise<string | null> => {
   try {
-    const refreshToken = getRefreshToken();
+    const refreshToken = await getRefreshToken(); // اضافه کردن await
     if (!refreshToken) throw new Error("No refresh token available");
-    const response = await api.post("/token/refresh/", { token: refreshToken });
-    const newAccessToken = response.data.access_token;
-    setAccessToken(newAccessToken);
+
+    // نکته: برای رفرش توکن معمولاً از خودِ axios خام استفاده می‌کنند تا در چرخه اینترسپتور نیفتد
+    const response = await axios.post(`${base_url}/token/refresh/`, { 
+      refresh: refreshToken // دقت کن که نام فیلد در جنگو معمولاً refresh است نه token
+    });
+
+    const newAccessToken = response.data.access; // در جنگو معمولاً access است
+    await setAccessToken(newAccessToken); // اضافه کردن await
     return newAccessToken;
   } catch (error) {
-    clearTokens();
-    window.location.href = "/";
+    await clearTokens(); // اضافه کردن await
+    window.location.href = "/login"; // یا صفحه اصلی
     return null;
   }
 };
 
 // Request interceptor to add Authorization header
 api.interceptors.request.use(
-  (config: AxiosRequestConfig) => {
-    const token = getAccessToken();
-    if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
+  async (config: AxiosRequestConfig) => { // ۱. اضافه کردن async اینجا
+    try {
+      const token = await getAccessToken(); // ۲. اضافه کردن await اینجا
+      
+
+      if (token) {
+        config.headers["Authorization"] = `Bearer ${token}`;
+      }
+    } catch (error) {
+      console.error("Error getting token:", error);
     }
+    
     return config;
   },
   (error) => Promise.reject(error),
 );
-
 // Response interceptor to handle token expiration and retries
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
