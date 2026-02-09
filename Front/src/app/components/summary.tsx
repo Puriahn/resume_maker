@@ -7,6 +7,7 @@ export default function Summary(){
             <div>
         <EditableText
             name="summary"
+            section="description"
           initialValue="some things about yourself"
           className="block"
         />

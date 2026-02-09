@@ -17,6 +17,7 @@ import {
   restrictToParentElement,
 } from "@dnd-kit/modifiers";
 import api from "@/libb/axios";
+import { useResumeStore } from "./store/store";
 
 export default function Home() {
   const [sections, setSections] = useState([
@@ -26,15 +27,14 @@ export default function Home() {
     { id: "education", label: "Education" },
     { id: "skills", label: "Skills" },
   ]);
-  const [resumeData, setResumeData] = useState(null);
   const [loading, setLoading] = useState(true);
-
-  // ۱. دریافت اطلاعات اولیه از بک‌اِند
+  const resumeData = useResumeStore((state) => state.resumeData);
+  console.log(resumeData,"tamam")
   useEffect(() => {
     const fetchResume = async () => {
       try {
         const response = await api.get("profile/");
-        setResumeData(response.data);
+        useResumeStore.getState().setResumeData(response.data);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
@@ -92,7 +92,7 @@ export default function Home() {
 
       {/* رزومه خارج از کانتکست است اما چون استیت sections را می‌گیرد، همزمان تغییر می‌کند */}
       <main className="flex-1 p-5 flex justify-center overflow-y-auto">
-         <Resume sections={sections} />
+         <Resume sections={sections} data={resumeData}/>
       </main>
 
       {/* دکمه ذخیره کلی (اختیاری) */}

@@ -1,31 +1,36 @@
 import EditableText from "../utils/Editable";
 
-export default function Header() {
+export default function Header({data}:any) {
+  console.log("header",data)
   return (
     <div className="flex  justify-between items-center">
       <div>
         <EditableText
-          name="name"
-          initialValue="Your Name"
+          name="personal_info"
+          section="full_name"
+          initialValue={data.full_name||"Your Name"}
           className="text-4xl font-extrabold text-gray-800 block"
           maxLength={20}
         />
         <div className="flex items-center gap-x-5">
           <EditableText
-            name="job"
+          name="personal_info"
+            section="job_title"
             initialValue="Job Title"
             className="text-blue-400 font-medium text-lg"
             maxLength={20}
           />
           <div>
             <EditableText
-              name="email"
-              initialValue="Email"
+            name="personal_info"
+              section="email"
+              initialValue={data.email||"Email"}
               className="text-blue-400  text-sm"
               maxLength={30}
             />
             <EditableText
-              name="phone number"
+            name="personal_info"
+              section="phone_number"
               initialValue="Phone Number"
               className="text-blue-400 text-sm"
               maxLength={13}

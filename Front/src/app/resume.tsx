@@ -6,17 +6,27 @@ import Experience from "./components/experience";
 import Education from "./components/education";
 import Skills from "./components/skills";
 
-export default function Resume({ sections }: { sections: any[] }) {
+interface ResumeProps {
+  sections: any[];
+  data: any; // دیتایی که از API گرفتی
+}
+
+export default function Resume({ sections, data }: ResumeProps) {
   return (
     <main className="flex-1 p-3 md:p-10 flex justify-center overflow-y-auto">
-      <div className="bg-white w-[210mm] min-h-[297mm] shadow-xl p-12">
+      <div className="bg-white w-[210mm] min-h-[297mm] shadow-xl p-5 md:p-10" style={{
+      // این استایل باعث می‌شود هر 297 میلی‌متر یک سایه یا خط بیفتد که مرز صفحه را نشان دهد
+      minHeight: '297mm',
+      backgroundImage: 'linear-gradient(to bottom, transparent 296.5mm, #e5e7eb 296.5mm, #e5e7eb 297mm)',
+      backgroundSize: '100% 297mm'
+    }}>
         
         {/* اضافه کردن Context برای انیمیشن‌های صفحه A4 */}
         <SortableContext items={sections.map(s => s.id)} strategy={verticalListSortingStrategy}>
           {sections.map((section, index) => (
             <ResumeSection key={section.id} id={section.id}>
               <div className="py-3 text-gray-700">
-                {section.id === "header" && <Header />}
+                {section.id === "header" && <Header data={data} />}
                 {section.id === "summary" && <Summary />}
                 {section.id === "experience" && <Experience/>}
                 {section.id === "education" && <Education/>}

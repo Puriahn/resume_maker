@@ -45,7 +45,7 @@ const refreshAccessToken = async (): Promise<string | null> => {
     return newAccessToken;
   } catch (error) {
     await clearTokens(); // اضافه کردن await
-    window.location.href = "/login"; // یا صفحه اصلی
+    window.location.href = "Auth/signIn"; // یا صفحه اصلی
     return null;
   }
 };

@@ -16,7 +16,8 @@ export default function Education(){
              <div className="flex gap-x-3 items-center">
                <div className="">
                  <EditableText
-                   name="Institute_name"
+                   name="educations"
+                  section="institute_name"
                    initialValue="Institute Name"
                    placeholder="Enter Institute Name..."
                    className="text-lg font-bold text-gray-800 block"
@@ -26,7 +27,8 @@ export default function Education(){
                
                <div className="">
                  <EditableText
-                   name="duration-ed"
+                   name="educations"
+                   section="duration-ed"
                    initialValue="Jan 2022 - Present"
                    placeholder="Duration (e.g. 2 years)"
                    className="text-sm text-gray-500 font-medium"

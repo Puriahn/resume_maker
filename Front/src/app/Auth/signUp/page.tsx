@@ -29,7 +29,7 @@ const initialState: FormState = {
 };
 
 export default function SignUp() {
-  const [states, setStates] = useState(2);
+  const [states, setStates] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
   const [showRepeatPassword, setShowRepeatPassword] = useState(false);
 
