@@ -33,19 +33,70 @@ class SkillSerializer(serializers.ModelSerializer):
         fields = ('id', 'name')
 
 
+class SummarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Summary
+        fields = ('id', 'description')
+
+
 class EducationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Education
-        fields = ('id', 'institute_name', 'start_date', 'end_date')
+        fields = ('id', 'institute_name', 'date')
+
+
+class ExperienceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Experience
+        fields = ('id', 'company_name', 'info', 'date')
 
 
 class UserSerializer(serializers.ModelSerializer):
+    summary = SummarySerializer(many=False, read_only=True)
     educations = EducationSerializer(many=True, read_only=True)
+    experiences = ExperienceSerializer(many=True, read_only=True)
     skills = SkillSerializer(many=True, read_only=True)
+
+    section_order = serializers.ListField(
+        child=serializers.CharField(),
+        required=False
+    )
 
     class Meta:
         model = User
-        fields = ('id', 'email', 'full_name', 'phone_number', 'job_title', 'summary', 'image', 'skills', 'educations')
+        fields = ('id', 'email', 'full_name', 'phone_number', 'job_title', 'image', 'summary', 'skills', 'educations', 'experiences', 'section_order')
+
+    def to_representation(self, instance):
+        base = super().to_representation(instance)
+
+        raw = instance.section_order or ''
+        if raw.strip():
+            section_order = [x for x in raw.split(',') if x]
+        else:
+            section_order = ["header", "skills", "experience", "education", "summary"]
+
+        return {
+            "section_order": section_order,
+            "personal_info": {
+                "id": base["id"],
+                "phone": base["phone_number"],
+                "email": base["email"],
+                "name": base["full_name"],
+                "img": base["image"],
+                "job": base["job_title"],
+            },
+            "summary": base["summary"],
+            "skills": base["skills"],
+            "educations": base["educations"],
+            "experiences": base["experiences"],
+        }
+
+    def update(self, instance, validated_data):
+        # handle section_order from frontend (list -> string)
+        order = validated_data.pop('section_order', None)
+        if order is not None:
+            instance.section_order = ','.join(order)
+        return super().update(instance, validated_data)
 
 
 class VerifyOtpSerializer(serializers.Serializer):
