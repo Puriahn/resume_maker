@@ -30,14 +30,25 @@ export async function loginAction(
     const data = await response.json();
     console.log(data);
     if (!response.ok) {
-      console.log("Django Error:", data);
+    console.log("Django Error:", data);
 
-      const errorMessage =
-        data.email?.at(-1) ||
-        data.password?.at(-1) ||
-        data.detail ;
-      return { success: null, error: errorMessage };
+    // ۱. بررسی خطای خاص ارسال ایمیل
+    const rawError = data.error || "";
+    if (rawError.includes("Error While sending email")) {
+      console.log("Ignoring email error, proceeding to OTP stage...");
+      return { success: "email didnt send but successefull", error: null }; 
     }
+
+    // ۲. منطق قبلی برای سایر خطاها
+    const errorMessage =
+      data.email?.at(-1) ||
+      data.password?.at(-1) ||
+      data.detail || 
+      data.error || // اضافه کردن این بخش برای گرفتن خطاهای عمومی
+      "An unexpected error occurred";
+
+    return { success: null, error: errorMessage };
+  }
 
     return { success: "successed", error: null };
   } catch (error: any) {

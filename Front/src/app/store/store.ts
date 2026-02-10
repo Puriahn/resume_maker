@@ -1,11 +1,19 @@
-import { create } from 'zustand';
+import { create } from "zustand";
 
 interface ResumeState {
   resumeData: any;
   setResumeData: (data: any) => void;
-  updateDynamicField: (name: string, section: string | null, value: string, id?: number) => void;
+  updateDynamicField: (
+    name: string,
+    section: string | null,
+    value: string | any[],
+    id?: number,
+  ) => void;
   addNewItem: (listName: "experiences" | "educations" | "skills") => void;
-  removeItem: (listName: "experiences" | "educations" | "skills", id: number) => void;
+  removeItem: (
+    listName: "experiences" | "educations" | "skills",
+    id: number,
+  ) => void;
 }
 
 export const useResumeStore = create<ResumeState>((set) => ({
@@ -20,27 +28,44 @@ export const useResumeStore = create<ResumeState>((set) => ({
       // یک کپی عمیق از کل دیتا می‌گیریم
       const newData = { ...state.resumeData };
 
-      // ۱. منطق مخصوص لیست‌ها (Experiences, Educations, Skills)
-      if (name === "experiences" || name === "educations" || name === "skills") {
-          if (Array.isArray(newData[name])) {
-            console.log("inside ex and ed and skills")
-          newData[name] = newData[name].map((item: any) =>
-            item.id === id ? { ...item, [section!]: value } : item
-          );
+
+      if (name === "skills" || name==="section_order") {
+      newData[name] = value; // در اینجا value همان آرایه کامل است
+    }
+      else if (
+        name === "experiences" ||
+        name === "educations" 
+      ) {
+        if (Array.isArray(newData[name])) {
+          if (newData[name].length > 0) {
+            newData[name].forEach((item: any) => {
+              if (section) {
+                item[section] = value;
+              }
+            });
+          }
+          // ۲. اگر آرایه خالی بود، اولین آیتم را بساز
+          else if (section) {
+            const newItem = {
+              id: Date.now(), // ایجاد یک آیدی موقت
+              [section]: value,
+            };
+            newData[name] = [newItem];
+          }
         }
       }
-      
+
       // ۲. منطق مخصوص اشیاء تودرتو (Summary, Personal_info)
       else if (name === "summary" || name === "personal_info") {
         // اگر نال بود، تبدیل به آبجکت خالی کن تا کرش نکند
         if (!newData[name]) newData[name] = {};
-        
-        newData[name] = { 
-          ...newData[name], 
-          [section!]: value 
+
+        newData[name] = {
+          ...newData[name],
+          [section!]: value,
         };
       }
-      
+
       // ۳. فیلدهای ریشه (مثل Job Title اگر بیرون از personal_info باشد)
       else {
         newData[name] = value;
@@ -63,7 +88,10 @@ export const useResumeStore = create<ResumeState>((set) => ({
       return {
         resumeData: {
           ...state.resumeData,
-          [listName]: [...(state.resumeData[listName] || []), defaults[listName]],
+          [listName]: [
+            ...(state.resumeData[listName] || []),
+            defaults[listName],
+          ],
         },
       };
     }),
@@ -72,7 +100,9 @@ export const useResumeStore = create<ResumeState>((set) => ({
     set((state) => ({
       resumeData: {
         ...state.resumeData,
-        [listName]: state.resumeData[listName].filter((item: any) => item.id !== id),
+        [listName]: state.resumeData[listName].filter(
+          (item: any) => item.id !== id,
+        ),
       },
     })),
 }));

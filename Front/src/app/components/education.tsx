@@ -28,7 +28,7 @@ export default function Education(){
                <div className="">
                  <EditableText
                    name="educations"
-                   section="duration-ed"
+                   section="date"
                    initialValue="Jan 2022 - Present"
                    placeholder="Duration (e.g. 2 years)"
                    className="text-sm text-gray-500 font-medium"

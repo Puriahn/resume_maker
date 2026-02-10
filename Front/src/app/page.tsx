@@ -29,6 +29,8 @@ export default function Home() {
   ]);
   const [loading, setLoading] = useState(true);
   const resumeData = useResumeStore((state) => state.resumeData);
+  const updateField = useResumeStore((state) => state.updateDynamicField);
+
   console.log(resumeData,"tamam")
   useEffect(() => {
     const fetchResume = async () => {
@@ -43,6 +45,10 @@ export default function Home() {
     };
     fetchResume();
   }, []);
+
+   useEffect(() => {
+    updateField("section_order", null, sections);
+  }, [sections]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -68,10 +74,6 @@ export default function Home() {
     }
   };
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    // اینجا می‌توانید در صورت نیاز ترتیب جدید را در دیتابیس ذخیره کنید
-    console.log("New sections order:", sections);
-  };
 
   if (loading) return <div className="flex justify-center items-center h-screen">Loading...</div>;
 
@@ -84,7 +86,6 @@ export default function Home() {
         sensors={sensors}
         collisionDetection={closestCenter}
         onDragOver={handleDragOver} // عامل حرکت همزمان
-        onDragEnd={handleDragEnd}
         modifiers={[restrictToVerticalAxis, restrictToParentElement]}
       >
         <SideBar sections={sections} />

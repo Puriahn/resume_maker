@@ -7,13 +7,20 @@ import React, {
   ChangeEvent,
   KeyboardEvent,
 } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
-export default function Otp() {
+interface OtpProps {
+  email: string;
+}
 
-  const [otp, setOtp] = useState<string[]>(new Array(6).fill(""));
+export default function Otp({email}:OtpProps) {
+
+  const [otp, setOtp] = useState<string[]>(new Array(4).fill(""));
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const [counter, setCounter] = useState(120); 
   const [isClient, setIsClient] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     setIsClient(true); 
@@ -47,11 +54,42 @@ export default function Otp() {
       inputRefs.current[index - 1]?.focus();
     }
   };
+  
 
-  const handleVerify = () => {
-    const code = otp.join("");
-    console.log("Verifying OTP:", code);
-  };
+  const handleVerify = async () => {
+  const code = otp.join("");
+
+  try {
+    const response = await fetch("http://127.0.0.1:8000/api/users/verify/", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        email: email,
+        otp: code,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      console.log("تایید موفقیت‌آمیز:", data);
+      toast.success("ثبت‌نام با موفقیت انجام شد. در حال انتقال به صفحه ورود...");
+
+      // هدایت کاربر بعد از ۳ ثانیه (۳۰۰۰ میلی‌ثانیه)
+      setTimeout(() => {
+        router.push("/Auth/signIn");
+      }, 3000);
+
+    } else {
+      toast.error(data.message || "کد وارد شده صحیح نیست");
+    }
+  } catch (error) {
+    console.error("خطا در برقراری ارتباط:", error);
+    toast.error("خطایی در اتصال به سرور رخ داد");
+  }
+};
 
   return (
     <div className="flex items-center justify-center min-h-screen  bg-linear-to-r from-pink-300 via-purple-300 to-indigo-400 pt-10">

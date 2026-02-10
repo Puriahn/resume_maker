@@ -26,7 +26,7 @@ export default function Experience() {
             <div className="text-right">
               <EditableText
                 name="experiences"
-                section="duration"
+                section="date"
                 initialValue="Jan 2022 - Present"
                 placeholder="Duration (e.g. 2 years)"
                 className="text-sm text-gray-500 font-medium"

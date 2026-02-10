@@ -1,12 +1,20 @@
 "use client";
 import { useState } from "react";
+import { useResumeStore } from "../store/store";
+import { useEffect } from "react";
 
 export default function Skills() {
-  const [skills, setSkills] = useState<string[]>(["React", "Next.js", "Tailwind"]);
+  const updateField = useResumeStore((state) => state.updateDynamicField);
+  const initialSkills = useResumeStore((state) => state.resumeData?.skills || []);
+  const initial=initialSkills.length===0?["React", "Next.js", "Tailwind"]:initialSkills
+  const [skills, setSkills] = useState<string[]>(initial);
   // اضافه کردن مهارت جدید
   const addSkill = () => {
     setSkills([...skills, "New Skill"]);
   };
+  useEffect(() => {
+    updateField("skills", null, skills);
+  }, [skills]);
 
   // حذف مهارت
   const removeSkill = (index: number) => {

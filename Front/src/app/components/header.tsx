@@ -1,7 +1,6 @@
 import EditableText from "../utils/Editable";
 
 export default function Header({data}:any) {
-  console.log("header",data)
   return (
     <div className="flex  justify-between items-center">
       <div>

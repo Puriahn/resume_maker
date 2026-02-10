@@ -7,7 +7,7 @@ import { getAccessToken } from "@/libb/token";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
+import { email, z } from "zod";
 
 
 const signupSchema = z
@@ -31,6 +31,7 @@ const initialState: FormState = {
 export default function SignUp() {
   const [states, setStates] = useState(1);
   const [showPassword, setShowPassword] = useState(false);
+  const [email,setEmail]=useState("")
   const [showRepeatPassword, setShowRepeatPassword] = useState(false);
 
   const [state, formAction, isPending] = useActionState(loginAction, initialState);
@@ -38,6 +39,7 @@ export default function SignUp() {
   useEffect(() => {
     console.log(state)
     if (state?.success) {
+      toast.success(state.success)
       setStates(2)
     }
     
@@ -56,6 +58,7 @@ export default function SignUp() {
 
 
 const processForm = (data: SignupInput) => {
+  setEmail(data.email)
     const formData = new FormData();
     formData.append("email", data.email);
     formData.append("password", data.password);
@@ -64,7 +67,7 @@ const processForm = (data: SignupInput) => {
     });
   };
 
-  if (states !== 1) return <Otp />;
+  if (states !== 1) return <Otp email={email}/>;
 
   return (
     <div className="bg-linear-to-r from-pink-300 via-purple-300 to-indigo-400 h-screen pt-32">
