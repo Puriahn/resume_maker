@@ -1,7 +1,7 @@
 from django.contrib.auth.password_validation import validate_password
-from rest_framework import serializers
-from .models import *
 from django.core import exceptions
+from rest_framework import serializers
+from .models import User, Skill, Summary, Education, Experience
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
@@ -99,73 +99,138 @@ class ExperienceSerializer(serializers.ModelSerializer):
 #         return super().update(instance, validated_data)
 
 
-class UserSerializer(serializers.ModelSerializer):
-    # READ: nested full objects
-    summary = SummarySerializer(read_only=True)
-    skills = SkillSerializer(many=True, read_only=True)
-    educations = EducationSerializer(many=True, read_only=True)
-    experiences = ExperienceSerializer(many=True, read_only=True)
+class SummarySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Summary
+        fields = ('id', 'description')
 
-    # WRITE: input data
+
+class EducationSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
+
+    class Meta:
+        model = Education
+        fields = ('id', 'institute_name', 'date')
+
+
+class ExperienceSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
+
+    class Meta:
+        model = Experience
+        fields = ('id', 'company_name', 'info', 'date')
+
+
+# Create a small serializer just for Swagger's documentation of personal_info
+class PersonalInfoSerializer(serializers.Serializer):
+    id = serializers.IntegerField(read_only=True)
+    phone = serializers.CharField(source='phone_number', allow_null=True)
+    email = serializers.EmailField()
+    name = serializers.CharField(source='full_name', allow_null=True)
+    img = serializers.ImageField(source='image', allow_null=True)
+    job = serializers.CharField(source='job_title', allow_null=True)
+
+
+class UserSerializer(serializers.ModelSerializer):
+    skills = serializers.SerializerMethodField()
     skills_input = serializers.ListField(
         child=serializers.CharField(),
-        write_only=True, required=False
+        write_only=True,
+        required=False
     )
-    summary_input = SummarySerializer(write_only=True, required=False)
-    educations_input = EducationSerializer(many=True, write_only=True, required=False)
-    experiences_input = ExperienceSerializer(many=True, write_only=True, required=False)
+
+    # This field handles both the GET structure and the nested PATCH input
+    personal_info = PersonalInfoSerializer(source='*', read_only=False)
+
+    summary = SummarySerializer(required=False, allow_null=True)
+    educations = EducationSerializer(many=True, required=False)
+    experiences = ExperienceSerializer(many=True, required=False)
+    section_order = serializers.ListField(child=serializers.CharField(), required=False)
 
     class Meta:
         model = User
         fields = [
-            'id', 'email', 'full_name', 'phone_number', 'job_title', 'image',
-            'summary', 'skills', 'educations', 'experiences', 'section_order',
-            'skills_input', 'summary_input', 'educations_input', 'experiences_input'
+            'section_order',
+            'personal_info',
+            'summary',
+            'skills',
+            'skills_input',
+            'educations',
+            'experiences',
         ]
 
+    def get_skills(self, obj):
+        return [skill.name for skill in obj.skills.all()]
+
+    def to_internal_value(self, data):
+        data = data.copy()
+        # We ONLY need to move 'skills' because 'skills' is a read-only SerializerMethodField
+        # We do NOT pop 'personal_info' here anymore; let the PersonalInfoSerializer handle it
+        if 'skills' in data:
+            data['skills_input'] = data.pop('skills')
+
+        return super().to_internal_value(data)
+
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        # Ensure section_order is always a list in the response
+        if isinstance(instance.section_order, str):
+            ret['section_order'] = [x.strip() for x in instance.section_order.split(',') if x.strip()]
+
+        # skills_input is write_only, but we pop it just to be safe
+        ret.pop('skills_input', None)
+        return ret
+
     def update(self, instance, validated_data):
-        # Handle user fields
-        user_data = {k: v for k, v in validated_data.items() if k not in [
-            'skills_input', 'summary_input', 'educations_input', 'experiences_input'
-        ]}
-        instance = super().update(instance, user_data)
+        # 1. Extract nested/special data
+        # PersonalInfoSerializer(source='*') puts its results into a 'personal_info' dict
+        personal_info_data = validated_data.pop('personal_info', {})
+        skills_list = validated_data.pop('skills_input', None)
+        summary_data = validated_data.pop('summary', None)
+        educations_data = validated_data.pop('educations', None)
+        experiences_data = validated_data.pop('experiences', None)
+        section_order_data = validated_data.pop('section_order', None)
 
-        # Skills (replace all)
-        if 'skills_input' in validated_data:
-            skills_data = validated_data.pop('skills_input')
-            skill_objs = []
-            for name in skills_data:
-                skill, _ = Skill.objects.get_or_create(name=name.strip())
-                skill_objs.append(skill)
-            instance.skills.set(skill_objs)
+        # 2. Update the User model fields from the nested 'personal_info' dict
+        # The keys here (full_name, phone_number, etc.) are already correctly
+        # mapped because of the 'source' arguments in PersonalInfoSerializer
+        for attr, value in personal_info_data.items():
+            setattr(instance, attr, value)
 
-        # Summary (update or create)
-        if 'summary_input' in validated_data:
-            summary_data = validated_data.pop('summary_input')
-            summary, created = Summary.objects.update_or_create(
-                user=instance,
-                defaults=summary_data
-            )
+        # 3. Update any other top-level fields (like section_order)
+        if section_order_data is not None:
+            instance.section_order = ",".join(section_order_data)
 
-        # Educations (delete old, create new)
-        if 'educations_input' in validated_data:
-            educations_data = validated_data.pop('educations_input')
-            instance.educations.all().delete()
-            for edu_data in educations_data:
-                edu_data['user'] = instance
-                Education.objects.create(**edu_data)
-
-        # Experiences (delete old, create new)
-        if 'experiences_input' in validated_data:
-            experiences_data = validated_data.pop('experiences_input')
-            instance.experiences.all().delete()
-            for exp_data in experiences_data:
-                exp_data['user'] = instance
-                Experience.objects.create(**exp_data)
+        # Update any remaining validated_data if exists
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
 
         instance.save()
-        return instance
 
+        # 4. Handle Skills (ManyToMany)
+        if skills_list is not None:
+            skill_objs = [Skill.objects.get_or_create(name=s.strip())[0] for s in skills_list]
+            instance.skills.set(skill_objs)
+
+        # 5. Handle Summary (OneToOne)
+        if summary_data is not None:
+            Summary.objects.update_or_create(user=instance, defaults=summary_data)
+
+        # 6. Handle Educations (ForeignKey - Delete and Recreate)
+        if educations_data is not None:
+            instance.educations.all().delete()
+            for edu in educations_data:
+                edu.pop('id', None)
+                Education.objects.create(user=instance, **edu)
+
+        # 7. Handle Experiences (ForeignKey - Delete and Recreate)
+        if experiences_data is not None:
+            instance.experiences.all().delete()
+            for exp in experiences_data:
+                exp.pop('id', None)
+                Experience.objects.create(user=instance, **exp)
+
+        return instance
 
 class VerifyOtpSerializer(serializers.Serializer):
     email = serializers.EmailField()
