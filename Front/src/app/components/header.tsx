@@ -7,7 +7,7 @@ export default function Header({data}:any) {
       <div>
         <EditableText
           name="personal_info"
-          section="full_name"
+          section="name"
           initialValue={data.full_name||"Your Name"}
           className="text-4xl font-extrabold text-gray-800 block"
           maxLength={20}
@@ -15,7 +15,7 @@ export default function Header({data}:any) {
         <div className="flex items-center gap-x-5">
           <EditableText
           name="personal_info"
-            section="job_title"
+            section="job"
             initialValue="Job Title"
             className="text-blue-400 font-medium text-lg"
             maxLength={20}
@@ -30,7 +30,7 @@ export default function Header({data}:any) {
             />
             <EditableText
             name="personal_info"
-              section="phone_number"
+              section="phone"
               initialValue="Phone Number"
               className="text-blue-400 text-sm"
               maxLength={13}

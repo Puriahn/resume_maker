@@ -3,11 +3,8 @@ import { create } from 'zustand';
 interface ResumeState {
   resumeData: any;
   setResumeData: (data: any) => void;
-  // تابع هوشمند برای آپدیت فیلدهای ساده، اشیاء تودرتو و لیست‌ها
   updateDynamicField: (name: string, section: string | null, value: string, id?: number) => void;
-  // تابع برای اضافه کردن آیتم جدید به لیست‌ها (با فیلدهای پیش‌فرض)
   addNewItem: (listName: "experiences" | "educations" | "skills") => void;
-  // تابع برای حذف یک آیتم از لیست‌ها
   removeItem: (listName: "experiences" | "educations" | "skills", id: number) => void;
 }
 
@@ -16,51 +13,66 @@ export const useResumeStore = create<ResumeState>((set) => ({
 
   setResumeData: (data) => set({ resumeData: data }),
 
-  updateDynamicField: (name, section, value, id) => set((state) => {
-    if (!state.resumeData) return state;
+  updateDynamicField: (name, section, value, id) =>
+    set((state) => {
+      if (!state.resumeData) return state;
 
-    const newData = { ...state.resumeData };
+      // یک کپی عمیق از کل دیتا می‌گیریم
+      const newData = { ...state.resumeData };
 
-    // ۱. آپدیت لیست‌ها (experiences, educations, skills) بر اساس ID
-    if (Array.isArray(newData[name]) && id !== undefined) {
-      newData[name] = newData[name].map((item: any) =>
-        item.id === id ? { ...item, [section!]: value } : item
-      );
-    } 
-    // ۲. آپدیت اشیاء تودرتو (personal_info و summary)
-    else if (section && typeof newData[name] === 'object' && newData[name] !== null) {
-      newData[name] = { ...newData[name], [section]: value };
-    } 
-    // ۳. آپدیت فیلدهای ریشه (مثل section_order)
-    else {
-      newData[name] = value;
-    }
+      // ۱. منطق مخصوص لیست‌ها (Experiences, Educations, Skills)
+      if (name === "experiences" || name === "educations" || name === "skills") {
+          if (Array.isArray(newData[name])) {
+            console.log("inside ex and ed and skills")
+          newData[name] = newData[name].map((item: any) =>
+            item.id === id ? { ...item, [section!]: value } : item
+          );
+        }
+      }
+      
+      // ۲. منطق مخصوص اشیاء تودرتو (Summary, Personal_info)
+      else if (name === "summary" || name === "personal_info") {
+        // اگر نال بود، تبدیل به آبجکت خالی کن تا کرش نکند
+        if (!newData[name]) newData[name] = {};
+        
+        newData[name] = { 
+          ...newData[name], 
+          [section!]: value 
+        };
+      }
+      
+      // ۳. فیلدهای ریشه (مثل Job Title اگر بیرون از personal_info باشد)
+      else {
+        newData[name] = value;
+      }
 
-    return { resumeData: newData };
-  }),
+      return { resumeData: newData };
+    }),
 
-  addNewItem: (listName) => set((state) => {
-    if (!state.resumeData) return state;
+  addNewItem: (listName) =>
+    set((state) => {
+      if (!state.resumeData) return state;
 
-    // تعریف ساختار اولیه برای هر بخش جهت جلوگیری از ارور
-    const defaults = {
-      experiences: { id: Date.now(), company_name: "", info: "", date: "" },
-      educations: { id: Date.now(), institute_name: "", date: "" },
-      skills: { id: Date.now(), name: "" }
-    };
+      const newId = Date.now();
+      const defaults: any = {
+        experiences: { id: newId, company_name: "", info: "", date: "" },
+        educations: { id: newId, institute_name: "", date: "" },
+        skills: { id: newId, name: "" },
+      };
 
-    return {
+      return {
+        resumeData: {
+          ...state.resumeData,
+          [listName]: [...(state.resumeData[listName] || []), defaults[listName]],
+        },
+      };
+    }),
+
+  removeItem: (listName, id) =>
+    set((state) => ({
       resumeData: {
         ...state.resumeData,
-        [listName]: [...(state.resumeData[listName] || []), defaults[listName]]
-      }
-    };
-  }),
-
-  removeItem: (listName, id) => set((state) => ({
-    resumeData: {
-      ...state.resumeData,
-      [listName]: state.resumeData[listName].filter((item: any) => item.id !== id)
-    }
-  })),
+        [listName]: state.resumeData[listName].filter((item: any) => item.id !== id),
+      },
+    })),
 }));
