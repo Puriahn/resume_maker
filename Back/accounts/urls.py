@@ -12,8 +12,10 @@ urlpatterns = [
     path('resend-code/', views.ResendOtpView.as_view(), name='resend-ptp-code'),
 
     path('profile/', views.UserProfileView.as_view(), name='user-profile'),
-    path('skills/add/', views.AddSkillView.as_view(), name='add-skill'),
-    path('educations/add/', views.AddEducationView.as_view(), name='add-edu'),
+    # path('skills/add/', views.AddSkillView.as_view(), name='add-skill'),
+    # path('educations/add/', views.AddEducationView.as_view(), name='add-edu'),
+    # path('experiences/add/', views.AddExperienceView.as_view(), name='add-experience'),
+    # path('summary/add/', views.AddSummaryView.as_view(), name='add-summary'),
 
     path('list-users/', views.UserListView.as_view(), name="user-list"),
     path('jwt/login/', TokenObtainPairView.as_view(), name="jwt-create"),
