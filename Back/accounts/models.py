@@ -17,11 +17,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_admin = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False)
 
-    section_order = models.CharField(
-        max_length=255,
-        blank=True,
-        default='',  # e.g. "header,skills,experience,education,summary"
-    )
+    section_order = models.TextField(blank=True, default='header,skills,experience,education,summary')
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
