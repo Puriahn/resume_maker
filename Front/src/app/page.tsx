@@ -18,18 +18,19 @@ import {
 } from "@dnd-kit/modifiers";
 import api from "@/libb/axios";
 import { useResumeStore } from "./store/store";
+import { toast } from "sonner";
 
 export default function Home() {
-  const [sections, setSections] = useState([
-    { id: "header", label: "Personal Info" },
-    { id: "summary", label: "Summary" },
-    { id: "experience", label: "Experience" },
-    { id: "education", label: "Education" },
-    { id: "skills", label: "Skills" },
-  ]);
+  
+  
   const [loading, setLoading] = useState(true);
   const resumeData = useResumeStore((state) => state.resumeData);
   const updateField = useResumeStore((state) => state.updateDynamicField);
+  const defaultSections = ["header", "summary", "experience", "education", "skills"];
+  
+  const sections = resumeData?.section_order && resumeData.section_order.length > 0
+    ? resumeData.section_order
+    : defaultSections;
 
   console.log(resumeData,"tamam")
   useEffect(() => {
@@ -63,17 +64,36 @@ export default function Home() {
   );
 
   // ۲. جابه‌جایی در لحظه (همزمان شدن سایدبار و رزومه)
-  const handleDragOver = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (over && active.id !== over.id) {
-      setSections((items) => {
-        const oldIndex = items.findIndex((i) => i.id === active.id);
-        const newIndex = items.findIndex((i) => i.id === over.id);
-        return arrayMove(items, oldIndex, newIndex);
-      });
-    }
-  };
+ const handleDragOver = (event: DragEndEvent) => {
+  const { active, over } = event;
 
+  // ۱. اگر آیتم جابجا شده بود
+  if (over && active.id !== over.id) {
+    
+    // ۲. دریافت لیست فعلی از استور (اگر نبود لیست پیش‌فرض)
+    const currentSections = resumeData?.section_order || ["header", "summary", "experience", "education", "skills"];
+
+    // ۳. پیدا کردن ایندکس‌ها
+    const oldIndex = currentSections.indexOf(active.id as string);
+    const newIndex = currentSections.indexOf(over.id as string);
+
+    // ۴. ساختن آرایه جدید با ترتیب جدید
+    const newOrder = arrayMove(currentSections, oldIndex, newIndex);
+
+    // ۵. آپدیت کردن استور (این کار باعث میشه UI خود به خود آپدیت بشه)
+    updateField("section_order", null, newOrder);
+  }
+};
+  const handleSave = async () => {
+    try{
+      const responde=await api.patch("profile/",resumeData)
+      if (responde.status === 200 || responde.status === 201) {
+      toast.success("Resume saved successfully!");}
+    }catch (error) {
+        console.error(error);
+        toast.error("Failed to save changes. Please try again.");
+      }
+  }
 
   if (loading) return <div className="flex justify-center items-center h-screen">Loading...</div>;
 
@@ -98,7 +118,7 @@ export default function Home() {
 
       {/* دکمه ذخیره کلی (اختیاری) */}
       <button 
-        onClick={() => console.log("Final Save:", resumeData, sections)}
+        onClick={handleSave}
         className="fixed bottom-8 right-8 bg-blue-600 text-white px-6 py-3 rounded-full shadow-2xl hover:bg-blue-700 transition-all"
       >
         Save Changes

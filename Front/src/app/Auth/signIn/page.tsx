@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 const signupSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -144,6 +145,12 @@ export default function SignIn() {
                       : "SignIn"}
                 </button>
               </div>
+              <Link
+                href="/Auth/signUp"
+                className="text-blue-600 flex justify-end hover:text-blue-800 font-semibold text-sm text-right w-full transition-colors duration-200 hover:underline"
+              >
+                Create Account
+              </Link>
             </div>
           </form>
         </div>

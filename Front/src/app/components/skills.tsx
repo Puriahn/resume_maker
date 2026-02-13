@@ -30,7 +30,7 @@ export default function Skills() {
 
   return (
     <div className="mt-6">
-      <h2 className="font-bold text-blue-700 text-xl border-b-2 border-blue-100 mb-4 pb-1 uppercase tracking-wider">
+      <h2 className="font-bold text-blue-700 text-lg md:text-xl mb-4 pb-1 uppercase tracking-wider">
         Skills
       </h2>
 
@@ -38,7 +38,7 @@ export default function Skills() {
         {skills.map((skill, index) => (
           <div 
             key={index} 
-            className="group flex items-center bg-gray-100 border border-gray-200 px-3 py-1 rounded-full hover:border-blue-400 transition-all shadow-sm"
+            className="group flex text-sm md:text-lg items-center bg-gray-100 border border-gray-200 px-3 py-1 rounded-full hover:border-blue-400 transition-all shadow-sm"
           >
             {/* استفاده از یک ورژن ساده شده از EditableText برای داخل تگ */}
             <input
@@ -52,7 +52,7 @@ export default function Skills() {
             {/* دکمه حذف تگ */}
             <button 
               onClick={() => removeSkill(index)}
-              className="ml-2 text-gray-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+              className="ml-2 text-gray-400 hover:text-red-500 opacity-50 group-hover:opacity-100 transition-opacity text-xs"
             >
               ✕
             </button>

@@ -21,16 +21,16 @@ export default function Resume({ sections, data }: ResumeProps) {
       backgroundSize: '100% 297mm'
     }}>
         
-        {/* اضافه کردن Context برای انیمیشن‌های صفحه A4 */}
-        <SortableContext items={sections.map(s => s.id)} strategy={verticalListSortingStrategy}>
+    
+        <SortableContext items={sections} strategy={verticalListSortingStrategy}>
           {sections.map((section, index) => (
-            <ResumeSection key={section.id} id={section.id}>
+            <ResumeSection key={section} id={section}>
               <div className="py-3 text-gray-700">
-                {section.id === "header" && <Header data={data} />}
-                {section.id === "summary" && <Summary />}
-                {section.id === "experience" && <Experience/>}
-                {section.id === "education" && <Education/>}
-                {section.id === "skills" && <Skills/>}
+                {section === "header" && <Header data={data} />}
+                {section === "summary" && <Summary data={data}/>}
+                {section === "experience" && <Experience data={data}/>}
+                {section === "education" && <Education data={data}/>}
+                {section === "skills" && <Skills/>}
               </div>
 
               {index !== sections.length - 1 && (

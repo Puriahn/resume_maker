@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { email, z } from "zod";
+import Link from "next/link";
 
 
 const signupSchema = z
@@ -142,6 +143,12 @@ const processForm = (data: SignupInput) => {
                   {isPending ? "Pending" : "SignUp"}
                 </button>
               </div>
+              <Link
+                href="/Auth/signIn"
+                className="text-blue-600 flex justify-end hover:text-blue-800 font-semibold text-sm text-right w-full transition-colors duration-200 hover:underline"
+              >
+                Log In
+              </Link>
             </div>
           </form>
         </div>

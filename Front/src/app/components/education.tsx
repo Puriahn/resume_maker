@@ -1,10 +1,10 @@
 import EditableText from "../utils/Editable"
-export default function Education(){
+export default function Education({data}:any){
     return(
 
          <div>
          {/* تیتر بخش */}
-         <h2 className="font-bold text-blue-700 text-xl mb-2 uppercase tracking-wider">
+         <h2 className="font-bold text-blue-700 text-lg md:text-xl mb-2 uppercase tracking-wider">
            Education
          </h2>
        
@@ -18,9 +18,9 @@ export default function Education(){
                  <EditableText
                    name="educations"
                   section="institute_name"
-                   initialValue="Institute Name"
+                   initialValue={data.educations[0]?.institute_name||"Institute Name"}
                    placeholder="Enter Institute Name..."
-                   className="text-lg font-bold text-gray-800 block"
+                   className="md:text-lg text-sm font-bold text-gray-800 block"
                    maxLength={50}
                  />
                </div>
@@ -29,9 +29,9 @@ export default function Education(){
                  <EditableText
                    name="educations"
                    section="date"
-                   initialValue="Jan 2022 - Present"
+                   initialValue={data.educations[0]?.date||"Jan 2022 - Present"}
                    placeholder="Duration (e.g. 2 years)"
-                   className="text-sm text-gray-500 font-medium"
+                   className="md:text-sm text-xs text-gray-500 font-medium"
                    maxLength={30}
                  />
                </div>

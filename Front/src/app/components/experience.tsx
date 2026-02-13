@@ -1,9 +1,9 @@
 import EditableText from "../utils/Editable";
-export default function Experience() {
+export default function Experience({data}:any) {
   return (
     <div>
       {/* تیتر بخش */}
-      <h2 className="font-bold text-blue-700 text-xl mb-2 uppercase tracking-wider">
+      <h2 className="font-bold text-blue-700 text-lg md:text-xl mb-2 uppercase tracking-wider">
         Experience
       </h2>
 
@@ -16,9 +16,9 @@ export default function Experience() {
               <EditableText
                 name="experiences"
                 section="company_name"
-                initialValue="Company Name"
+                initialValue={data.experiences[0]?.company_name||"Company Name"}
                 placeholder="Enter Company Name..."
-                className="text-lg font-bold text-gray-800 block"
+                className="text-sm md:text-lg font-bold text-gray-800 block"
                 maxLength={50}
               />
             </div>
@@ -27,9 +27,9 @@ export default function Experience() {
               <EditableText
                 name="experiences"
                 section="date"
-                initialValue="Jan 2022 - Present"
+                initialValue={data?.experiences[0]?.date||"Jan 2022 - Present"}
                 placeholder="Duration (e.g. 2 years)"
-                className="text-sm text-gray-500 font-medium"
+                className="text-xs md:text-sm text-gray-500 font-medium"
                 maxLength={30}
               />
             </div>
@@ -40,7 +40,7 @@ export default function Experience() {
             <EditableText
               name="experiences"
               section="info"
-              initialValue="What did you do there? (Responsibilities and achievements)"
+              initialValue={data?.experiences[0]?.info||"What did you do there? (Responsibilities and achievements)"}
               placeholder="Describe your role and impact..."
               className="text-sm block w-full"
               maxLength={1000}
