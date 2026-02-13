@@ -16,7 +16,6 @@ export default function SidebarItem({ id, label }: SidebarItemProps) {
 
   const style = {
   transform: CSS.Translate.toString(transform),
-  // فقط وقتی درگ نمی‌کنیم انیمیشن داشته باشه (برای وقتی که آیتم‌ها برمیگردن سر جاشون)
   transition: isDragging ? 'none' : transition, 
   touchAction: 'none',
   zIndex: isDragging ? 50 : 1,

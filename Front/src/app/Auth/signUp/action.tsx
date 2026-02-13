@@ -1,8 +1,5 @@
 "use server";
 import axios from "axios";
-import api from "@/libb/axios";
-import { redirect } from "next/navigation";
-import { setAccessToken } from "@/libb/token";
 export type FormState = {
   error: string | null;
   success: string | null;
@@ -31,20 +28,17 @@ export async function loginAction(
     console.log(data);
     if (!response.ok) {
     console.log("Django Error:", data);
-
-    // ۱. بررسی خطای خاص ارسال ایمیل
     const rawError = data.error || "";
     if (rawError.includes("Error While sending email")) {
       console.log("Ignoring email error, proceeding to OTP stage...");
       return { success: "email didnt send but successefull", error: null }; 
     }
 
-    // ۲. منطق قبلی برای سایر خطاها
     const errorMessage =
       data.email?.at(-1) ||
       data.password?.at(-1) ||
       data.detail || 
-      data.error || // اضافه کردن این بخش برای گرفتن خطاهای عمومی
+      data.error || 
       "An unexpected error occurred";
 
     return { success: null, error: errorMessage };

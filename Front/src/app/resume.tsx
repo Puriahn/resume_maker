@@ -1,5 +1,5 @@
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
-import { ResumeSection } from "./ResumeSection"; // کامپوننتی که بالا ساختیم
+import { ResumeSection } from "./ResumeSection"; 
 import Header from "./components/header";
 import Summary from "./components/summary";
 import Experience from "./components/experience";
@@ -8,14 +8,13 @@ import Skills from "./components/skills";
 
 interface ResumeProps {
   sections: any[];
-  data: any; // دیتایی که از API گرفتی
+  data: any; 
 }
 
 export default function Resume({ sections, data }: ResumeProps) {
   return (
     <main className="flex-1 p-3 md:p-10 flex justify-center overflow-y-auto">
-      <div className="bg-white w-[210mm] min-h-[297mm] shadow-xl p-5 md:p-10" style={{
-      // این استایل باعث می‌شود هر 297 میلی‌متر یک سایه یا خط بیفتد که مرز صفحه را نشان دهد
+      <div id="resume-content" className="bg-white w-[210mm] min-h-[297mm]  p-5 md:p-10" style={{
       minHeight: '297mm',
       backgroundImage: 'linear-gradient(to bottom, transparent 296.5mm, #e5e7eb 296.5mm, #e5e7eb 297mm)',
       backgroundSize: '100% 297mm'

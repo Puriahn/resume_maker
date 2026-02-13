@@ -25,12 +25,11 @@ export const useResumeStore = create<ResumeState>((set) => ({
     set((state) => {
       if (!state.resumeData) return state;
 
-      // یک کپی عمیق از کل دیتا می‌گیریم
       const newData = { ...state.resumeData };
 
 
       if (name === "skills" || name==="section_order") {
-      newData[name] = value; // در اینجا value همان آرایه کامل است
+      newData[name] = value; 
     }
       else if (
         name === "experiences" ||
@@ -44,10 +43,9 @@ export const useResumeStore = create<ResumeState>((set) => ({
               }
             });
           }
-          // ۲. اگر آرایه خالی بود، اولین آیتم را بساز
           else if (section) {
             const newItem = {
-              id: Date.now(), // ایجاد یک آیدی موقت
+              id: Date.now(), 
               [section]: value,
             };
             newData[name] = [newItem];
@@ -55,9 +53,7 @@ export const useResumeStore = create<ResumeState>((set) => ({
         }
       }
 
-      // ۲. منطق مخصوص اشیاء تودرتو (Summary, Personal_info)
       else if (name === "summary" || name === "personal_info") {
-        // اگر نال بود، تبدیل به آبجکت خالی کن تا کرش نکند
         if (!newData[name]) newData[name] = {};
 
         newData[name] = {
@@ -66,7 +62,6 @@ export const useResumeStore = create<ResumeState>((set) => ({
         };
       }
 
-      // ۳. فیلدهای ریشه (مثل Job Title اگر بیرون از personal_info باشد)
       else {
         newData[name] = value;
       }

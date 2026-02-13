@@ -2,15 +2,12 @@ import EditableText from "../utils/Editable";
 export default function Experience({data}:any) {
   return (
     <div>
-      {/* تیتر بخش */}
       <h2 className="font-bold text-blue-700 text-lg md:text-xl mb-2 uppercase tracking-wider">
         Experience
       </h2>
 
       <div className="space-y-4">
-        {/* یک نمونه سابقه کاری */}
         <div className="relative group">
-          {/* ردیف اول: نام شرکت و مدت زمان */}
           <div className="flex justify-between items-center">
             <div className="flex-1">
               <EditableText
@@ -18,7 +15,7 @@ export default function Experience({data}:any) {
                 section="company_name"
                 initialValue={data.experiences[0]?.company_name||"Company Name"}
                 placeholder="Enter Company Name..."
-                className="text-sm md:text-lg font-bold text-gray-800 block"
+                className="text-sm md:text-lg font-bold text-[#1f2937] block"
                 maxLength={50}
               />
             </div>
@@ -35,7 +32,6 @@ export default function Experience({data}:any) {
             </div>
           </div>
 
-          {/* ردیف دوم: توضیحات فعالیت‌ها */}
           <div className="mt-2 text-gray-600 leading-relaxed">
             <EditableText
               name="experiences"

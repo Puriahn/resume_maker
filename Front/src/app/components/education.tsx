@@ -3,16 +3,13 @@ export default function Education({data}:any){
     return(
 
          <div>
-         {/* تیتر بخش */}
          <h2 className="font-bold text-blue-700 text-lg md:text-xl mb-2 uppercase tracking-wider">
            Education
          </h2>
        
          <div className="space-y-4">
-           {/* یک نمونه سابقه کاری */}
            <div className="relative group">
              
-             {/* ردیف اول: نام شرکت و مدت زمان */}
              <div className="flex gap-x-3 items-center">
                <div className="">
                  <EditableText

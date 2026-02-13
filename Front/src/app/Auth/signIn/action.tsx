@@ -1,7 +1,5 @@
 "use server";
 import axios from "axios";
-import api from "@/libb/axios";
-import { redirect } from "next/navigation";
 import { setAccessToken, setRefreshToken } from "@/libb/token";
 export type FormState = {
   error: string | null;
@@ -27,14 +25,12 @@ export async function loginAction(
     const data = await response.json();
 
     if (!response.ok) {
-      // مدیریت خطاهای جنگو (معمولاً در فیلد detail یا non_field_errors)
       return {
         error: data.detail || data.message || "ایمیل یا رمز عبور اشتباه است",
         success: null,
       };
     }
 
-    // ذخیره توکن‌ها در کوکی
     await setAccessToken(data.access);
     await setRefreshToken(data.refresh);
     return { success: "successed", error: null };

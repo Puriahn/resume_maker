@@ -37,13 +37,11 @@ export default function EditableText({
   const handleFinishEditing = () => {
     setIsEditing(false);
 
-    // اگر مقدار تغییر کرده بود، استور جهانی را آپدیت کن
     if (value !== initialValue) {
   updateDynamicField(name, section, value);
     }
   };
 
-  // ... بقیه کد (textarea و غیره)
 
   if (isEditing) {
     return (

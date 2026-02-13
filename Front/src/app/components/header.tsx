@@ -5,10 +5,11 @@ export default function Header({data}:any) {
     <div className="flex justify-between items-center">
       <div>
         <EditableText
+        
           name="personal_info"
           section="name"
           initialValue={data.personal_info.name||"Your Name"}
-          className="text-xl md:text-3xl font-extrabold text-gray-800 block"
+          className="text-xl md:text-3xl font-extrabold text-[#1f2937] block"
           maxLength={20}
         />
         <div className="block md:flex items-center gap-x-5">

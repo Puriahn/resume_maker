@@ -32,7 +32,6 @@ export default function Home() {
     ? resumeData.section_order
     : defaultSections;
 
-  console.log(resumeData,"tamam")
   useEffect(() => {
     const fetchResume = async () => {
       try {
@@ -63,24 +62,18 @@ export default function Home() {
     })
   );
 
-  // ۲. جابه‌جایی در لحظه (همزمان شدن سایدبار و رزومه)
  const handleDragOver = (event: DragEndEvent) => {
   const { active, over } = event;
 
-  // ۱. اگر آیتم جابجا شده بود
   if (over && active.id !== over.id) {
     
-    // ۲. دریافت لیست فعلی از استور (اگر نبود لیست پیش‌فرض)
     const currentSections = resumeData?.section_order || ["header", "summary", "experience", "education", "skills"];
 
-    // ۳. پیدا کردن ایندکس‌ها
     const oldIndex = currentSections.indexOf(active.id as string);
     const newIndex = currentSections.indexOf(over.id as string);
 
-    // ۴. ساختن آرایه جدید با ترتیب جدید
     const newOrder = arrayMove(currentSections, oldIndex, newIndex);
 
-    // ۵. آپدیت کردن استور (این کار باعث میشه UI خود به خود آپدیت بشه)
     updateField("section_order", null, newOrder);
   }
 };
@@ -100,23 +93,21 @@ export default function Home() {
   return (
     <div className="flex min-h-screen bg-linear-to-r from-pink-300 via-purple-300 to-indigo-400">
       
-      {/* محدوده درگ فقط برای سایدبار تعریف شده تا گیج نزند */}
       <DndContext
         id="sidebar-dnd-context"
         sensors={sensors}
         collisionDetection={closestCenter}
-        onDragOver={handleDragOver} // عامل حرکت همزمان
+        onDragOver={handleDragOver} 
         modifiers={[restrictToVerticalAxis, restrictToParentElement]}
       >
         <SideBar sections={sections} />
       </DndContext>
 
-      {/* رزومه خارج از کانتکست است اما چون استیت sections را می‌گیرد، همزمان تغییر می‌کند */}
       <main className="flex-1 p-5 flex justify-center overflow-y-auto">
          <Resume sections={sections} data={resumeData}/>
       </main>
 
-      {/* دکمه ذخیره کلی (اختیاری) */}
+
       <button 
         onClick={handleSave}
         className="fixed bottom-8 right-8 bg-blue-600 text-white px-6 py-3 rounded-full shadow-2xl hover:bg-blue-700 transition-all"

@@ -8,7 +8,6 @@ export default function Skills() {
   const initialSkills = useResumeStore((state) => state.resumeData?.skills || []);
   const initial=initialSkills.length===0?["React", "Next.js", "Tailwind"]:initialSkills
   const [skills, setSkills] = useState<string[]>(initial);
-  // اضافه کردن مهارت جدید
   const addSkill = () => {
     setSkills([...skills, "New Skill"]);
   };
@@ -16,12 +15,10 @@ export default function Skills() {
     updateField("skills", null, skills);
   }, [skills]);
 
-  // حذف مهارت
   const removeSkill = (index: number) => {
     setSkills(skills.filter((_, i) => i !== index));
   };
 
-  // آپدیت کردن متن هر مهارت
   const updateSkill = (index: number, newValue: string) => {
     const updatedSkills = [...skills];
     updatedSkills[index] = newValue;
@@ -40,16 +37,14 @@ export default function Skills() {
             key={index} 
             className="group flex text-sm md:text-lg items-center bg-gray-100 border border-gray-200 px-3 py-1 rounded-full hover:border-blue-400 transition-all shadow-sm"
           >
-            {/* استفاده از یک ورژن ساده شده از EditableText برای داخل تگ */}
             <input
               value={skill}
               suppressHydrationWarning
               onChange={(e) => updateSkill(index, e.target.value)}
               className="bg-transparent outline-none text-sm font-medium text-gray-700 w-auto min-w-[50px]"
-              style={{ width: `${skill.length + 1}ch` }} // تنظیم خودکار عرض ورودی
+              style={{ width: `${skill.length + 1}ch` }}
             />
             
-            {/* دکمه حذف تگ */}
             <button 
               onClick={() => removeSkill(index)}
               className="ml-2 text-gray-400 hover:text-red-500 opacity-50 group-hover:opacity-100 transition-opacity text-xs"
@@ -59,10 +54,9 @@ export default function Skills() {
           </div>
         ))}
 
-        {/* دکمه افزودن مهارت جدید */}
         <button
           onClick={addSkill}
-          className="flex items-center justify-center px-4 py-1 border-2 border-dashed border-gray-300 rounded-full text-gray-400 hover:border-blue-500 hover:text-blue-500 transition-all text-sm font-bold"
+          className="flex print:hidden items-center justify-center px-4 py-1 border-2 border-dashed border-gray-300 rounded-full text-gray-400 hover:border-blue-500 hover:text-blue-500 transition-all text-sm font-bold"
         >
           + Add
         </button>

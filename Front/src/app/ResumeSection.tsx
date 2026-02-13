@@ -10,7 +10,7 @@ export function ResumeSection({ id, children }: { id: string; children: React.Re
 
   const style = {
     transform: CSS.Translate.toString(transform),
-    transition, // این همون انیمیشن نرمیه که دنبالشی
+    transition,
   };
 
   return (

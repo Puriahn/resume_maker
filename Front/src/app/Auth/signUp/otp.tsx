@@ -77,7 +77,6 @@ export default function Otp({email}:OtpProps) {
       console.log("تایید موفقیت‌آمیز:", data);
       toast.success("ثبت‌نام با موفقیت انجام شد. در حال انتقال به صفحه ورود...");
 
-      // هدایت کاربر بعد از ۳ ثانیه (۳۰۰۰ میلی‌ثانیه)
       setTimeout(() => {
         router.push("/Auth/signIn");
       }, 3000);
