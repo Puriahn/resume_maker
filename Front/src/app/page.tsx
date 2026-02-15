@@ -24,13 +24,28 @@ export default function Home() {
   
   
   const [loading, setLoading] = useState(true);
-  const resumeData = useResumeStore((state) => state.resumeData);
+  const { resumeData, initialData } = useResumeStore();
   const updateField = useResumeStore((state) => state.updateDynamicField);
   const defaultSections = ["header", "summary", "experience", "education", "skills"];
-  
+  console.log(resumeData,"resumedata")
   const sections = resumeData?.section_order && resumeData.section_order.length > 0
     ? resumeData.section_order
     : defaultSections;
+
+    const isDirty = JSON.stringify(resumeData) !== JSON.stringify(initialData);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = ""; 
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [isDirty]);
 
   useEffect(() => {
     const fetchResume = async () => {
@@ -81,6 +96,7 @@ export default function Home() {
     try{
       const responde=await api.patch("profile/",resumeData)
       if (responde.status === 200 || responde.status === 201) {
+        useResumeStore.getState().markAsSaved()
       toast.success("Resume saved successfully!");}
     }catch (error) {
         console.error(error);
@@ -110,7 +126,7 @@ export default function Home() {
 
       <button 
         onClick={handleSave}
-        className="fixed bottom-8 right-8 bg-blue-600 text-white px-6 py-3 rounded-full shadow-2xl hover:bg-blue-700 transition-all"
+        className="fixed bottom-8 hover:cursor-pointer right-8 bg-blue-600 text-white px-6 py-3 rounded-full shadow-2xl hover:bg-blue-700 transition-all"
       >
         Save Changes
       </button>

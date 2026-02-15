@@ -8,12 +8,15 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { clearTokens } from "@/libb/token";
 import { toast } from "sonner";
+import { useResumeStore } from "./store/store";
 
 
 export default function SideBar({ sections }: { sections: any[] }) {
   const [isOpen, setIsOpen] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const router = useRouter();
+  const { resumeData, initialData } = useResumeStore();
+  const isDirty = JSON.stringify(resumeData) !== JSON.stringify(initialData);
 
   const handleLogout = async () => {
     await clearTokens();
@@ -25,7 +28,10 @@ export default function SideBar({ sections }: { sections: any[] }) {
   };
 
   const handleDownloadPDF = () => {
-
+    if(isDirty){
+      toast.error("Please save your resume first!!!")
+      return
+    }
   const toastId = toast.loading("preparing to download...", {
     duration: Infinity,
   });
@@ -74,8 +80,8 @@ export default function SideBar({ sections }: { sections: any[] }) {
       <aside
         className={`
           fixed inset-y-0  left-0 z-40 w-72 bg-white border-r transform transition-transform duration-300 ease-in-out
-          lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen lg:inset-0
-          ${isOpen ? "translate-x-0" : "-translate-x-full"}
+          lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen lg:inset-0 
+          ${isOpen ? "translate-x-0 " : "-translate-x-full "}
         `}
       >
         <div className="h-screen flex flex-col p-6">

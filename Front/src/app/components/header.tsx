@@ -1,4 +1,6 @@
+import { useResumeStore } from "../store/store";
 import EditableText from "../utils/Editable";
+import ProfileImage from './Image';
 
 export default function Header({data}:any) {
   return (
@@ -34,9 +36,7 @@ export default function Header({data}:any) {
           </div>
         </div>
       </div>
-      <div>
-        <img className="size-18" src="/profile.png" alt="Resume Avatar" />
-      </div>
+      <ProfileImage data={data}/>
     </div>
   );
 }

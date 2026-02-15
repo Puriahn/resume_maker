@@ -2,11 +2,13 @@ import { create } from "zustand";
 
 interface ResumeState {
   resumeData: any;
+  initialData: any;
   setResumeData: (data: any) => void;
+  markAsSaved: () => void;
   updateDynamicField: (
     name: string,
     section: string | null,
-    value: string | any[],
+    value: string | any[]| FormData,
     id?: number,
   ) => void;
   addNewItem: (listName: "experiences" | "educations" | "skills") => void;
@@ -18,8 +20,15 @@ interface ResumeState {
 
 export const useResumeStore = create<ResumeState>((set) => ({
   resumeData: null,
+  initialData: null, 
 
-  setResumeData: (data) => set({ resumeData: data }),
+  setResumeData: (data) => set({ 
+      resumeData: data, 
+      initialData: JSON.parse(JSON.stringify(data)) 
+  }),
+  markAsSaved: () => set((state) => ({ 
+      initialData: JSON.parse(JSON.stringify(state.resumeData)) 
+  })),
 
   updateDynamicField: (name, section, value, id) =>
     set((state) => {
@@ -54,7 +63,7 @@ export const useResumeStore = create<ResumeState>((set) => ({
       }
 
       else if (name === "summary" || name === "personal_info") {
-        if (!newData[name]) newData[name] = {};
+       if (!newData[name]) newData[name] = {};
 
         newData[name] = {
           ...newData[name],
