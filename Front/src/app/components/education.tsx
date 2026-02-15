@@ -1,35 +1,34 @@
 import EditableText from "../utils/Editable"
-export default function Education(){
+export default function Education({data}:any){
     return(
 
          <div>
-         {/* تیتر بخش */}
-         <h2 className="font-bold text-blue-700 text-xl mb-2 uppercase tracking-wider">
+         <h2 className="font-bold text-blue-700 text-lg md:text-xl mb-2 uppercase tracking-wider">
            Education
          </h2>
        
          <div className="space-y-4">
-           {/* یک نمونه سابقه کاری */}
            <div className="relative group">
              
-             {/* ردیف اول: نام شرکت و مدت زمان */}
              <div className="flex gap-x-3 items-center">
                <div className="">
                  <EditableText
-                   name="Institute_name"
-                   initialValue="Institute Name"
+                   name="educations"
+                  section="institute_name"
+                   initialValue={data.educations[0]?.institute_name||"Institute Name"}
                    placeholder="Enter Institute Name..."
-                   className="text-lg font-bold text-gray-800 block"
+                   className="md:text-lg text-sm font-bold text-gray-800 block"
                    maxLength={50}
                  />
                </div>
                
                <div className="">
                  <EditableText
-                   name="duration-ed"
-                   initialValue="Jan 2022 - Present"
+                   name="educations"
+                   section="date"
+                   initialValue={data.educations[0]?.date||"Jan 2022 - Present"}
                    placeholder="Duration (e.g. 2 years)"
-                   className="text-sm text-gray-500 font-medium"
+                   className="md:text-sm text-xs text-gray-500 font-medium"
                    maxLength={30}
                  />
                </div>

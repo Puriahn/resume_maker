@@ -1,8 +1,5 @@
 "use server";
 import axios from "axios";
-import api from "@/libb/axios";
-import { redirect } from "next/navigation";
-import { setAccessToken } from "@/libb/token";
 export type FormState = {
   error: string | null;
   success: string | null;
@@ -30,14 +27,22 @@ export async function loginAction(
     const data = await response.json();
     console.log(data);
     if (!response.ok) {
-      console.log("Django Error:", data);
-
-      const errorMessage =
-        data.email?.at(-1) ||
-        data.password?.at(-1) ||
-        data.detail ;
-      return { success: null, error: errorMessage };
+    console.log("Django Error:", data);
+    const rawError = data.error || "";
+    if (rawError.includes("Error While sending email")) {
+      console.log("Ignoring email error, proceeding to OTP stage...");
+      return { success: "email didnt send but successefull", error: null }; 
     }
+
+    const errorMessage =
+      data.email?.at(-1) ||
+      data.password?.at(-1) ||
+      data.detail || 
+      data.error || 
+      "An unexpected error occurred";
+
+    return { success: null, error: errorMessage };
+  }
 
     return { success: "successed", error: null };
   } catch (error: any) {

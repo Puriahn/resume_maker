@@ -41,3 +41,49 @@ body {
 	outline: 1px solid #333333;
 }
 
+@media print {
+  
+  /* ۱. مخفی کردن همه چیز در صفحه */
+  body * {
+    visibility: hidden;
+  }
+
+  /* ۲. نمایش دادن فقط بخش رزومه و محتویات داخلش */
+  #resume-content, #resume-content * {
+    visibility: visible;
+  }
+
+  /* ۳. تنظیم دقیق جایگاه رزومه روی کاغذ */
+  #resume-content {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 210mm; /* عرض دقیق A4 */
+    min-height: 297mm; /* ارتفاع دقیق A4 */
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    
+    /* حذف سایه و بوردر برای تمیزی در چاپ */
+    box-shadow: none !important;
+    border: none !important;
+    
+    /* اجبار به چاپ رنگ‌های پس‌زمینه (خیلی مهم) */
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* ۴. حذف هدر و فوترهای پیش‌فرض مرورگر (تاریخ، آدرس سایت و...) */
+  @page {
+    size: A4 portrait;
+    margin: 0mm; /* حاشیه صفر تا رزومه کل صفحه را بگیرد */
+  }
+
+  /* مخفی کردن اسکرول‌بارها */
+  html, body {
+    height: 100vh;
+    overflow: hidden;
+    margin: 0 !important; 
+    padding: 0 !important;
+  }
+}

@@ -29,32 +29,30 @@ const processQueue = (error: any, token: string | null = null) => {
   failedQueue = [];
 };
 
-// Function to refresh the access token
 const refreshAccessToken = async (): Promise<string | null> => {
   try {
-    const refreshToken = await getRefreshToken(); // اضافه کردن await
+    const refreshToken = await getRefreshToken(); 
     if (!refreshToken) throw new Error("No refresh token available");
 
-    // نکته: برای رفرش توکن معمولاً از خودِ axios خام استفاده می‌کنند تا در چرخه اینترسپتور نیفتد
+
     const response = await axios.post(`${base_url}/token/refresh/`, { 
-      refresh: refreshToken // دقت کن که نام فیلد در جنگو معمولاً refresh است نه token
+      refresh: refreshToken 
     });
 
-    const newAccessToken = response.data.access; // در جنگو معمولاً access است
-    await setAccessToken(newAccessToken); // اضافه کردن await
+    const newAccessToken = response.data.access; 
+    await setAccessToken(newAccessToken);
     return newAccessToken;
   } catch (error) {
-    await clearTokens(); // اضافه کردن await
-    window.location.href = "/login"; // یا صفحه اصلی
+    await clearTokens(); 
+    window.location.href = "Auth/signIn"; 
     return null;
   }
 };
 
-// Request interceptor to add Authorization header
 api.interceptors.request.use(
-  async (config: AxiosRequestConfig) => { // ۱. اضافه کردن async اینجا
+  async (config: AxiosRequestConfig) => { 
     try {
-      const token = await getAccessToken(); // ۲. اضافه کردن await اینجا
+      const token = await getAccessToken(); 
       
 
       if (token) {
@@ -68,16 +66,13 @@ api.interceptors.request.use(
   },
   (error) => Promise.reject(error),
 );
-// Response interceptor to handle token expiration and retries
 api.interceptors.response.use(
   (response: AxiosResponse) => response,
   async (error) => {
     const originalRequest = error.config;
 
-    // Check for 401 error and that retry hasn't been attempted
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
-        // Queue the request while refresh is in progress
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })

@@ -1,5 +1,5 @@
 "use client";
-import { useState,useEffect } from "react";
+import { useState, useEffect } from "react";
 import Resume from "./resume";
 import SideBar from "./SideBar";
 import {
@@ -17,74 +17,120 @@ import {
   restrictToParentElement,
 } from "@dnd-kit/modifiers";
 import api from "@/libb/axios";
+import { useResumeStore } from "./store/store";
+import { toast } from "sonner";
 
 export default function Home() {
-  const [sections, setSections] = useState([
-    { id: "header", label: "Personal Info" },
-    { id: "summary", label: "Summary" },
-    { id: "experience", label: "Experience" },
-    { id: "education", label: "Education" },
-    { id: "skills", label: "Skills" },
-  ]);
-  const [resumeData, setResumeData] = useState(null); // برای کل دیتای محتوایی
+  
+  
   const [loading, setLoading] = useState(true);
+  const { resumeData, initialData } = useResumeStore();
+  const updateField = useResumeStore((state) => state.updateDynamicField);
+  const defaultSections = ["header", "summary", "experience", "education", "skills"];
+  console.log(resumeData,"resumedata")
+  const sections = resumeData?.section_order && resumeData.section_order.length > 0
+    ? resumeData.section_order
+    : defaultSections;
 
-useEffect(() => {
+    const isDirty = JSON.stringify(resumeData) !== JSON.stringify(initialData);
+
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = ""; 
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+    };
+  }, [isDirty]);
+
+  useEffect(() => {
     const fetchResume = async () => {
       try {
         const response = await api.get("profile/");
-        const data = response.data;
-        
-        setResumeData(data);
+        useResumeStore.getState().setResumeData(response.data);
       } catch (error) {
         console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }
     };
-
     fetchResume();
   }, []);
 
-const sensors = useSensors(
-  useSensor(PointerSensor, {
-    activationConstraint: {
-      distance: 5,
-    },
-  }),
-  useSensor(TouchSensor, {
-    // این بخش خیلی مهمه:
-    activationConstraint: {
-      delay: 250, // باید ۲۵۰ میلی‌ثانیه انگشت رو نگه داره تا درگ شروع بشه
-      tolerance: 5, // اگه انگشتش لرزید و بیشتر از ۵ پیکسل تکون خورد، درگ کنسل بشه و اسکرول کنه
-    },
-  })
-);
+   useEffect(() => {
+    updateField("section_order", null, sections);
+  }, [sections]);
 
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
-    if (over && active.id !== over.id) {
-      setSections((items) => {
-        const oldIndex = items.findIndex((i) => i.id === active.id);
-        const newIndex = items.findIndex((i) => i.id === over.id);
-        return arrayMove(items, oldIndex, newIndex);
-      });
-    }
-  };
-  console.log(resumeData)
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 5 },
+    }),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 250,
+        tolerance: 5,
+      },
+    })
+  );
+
+ const handleDragOver = (event: DragEndEvent) => {
+  const { active, over } = event;
+
+  if (over && active.id !== over.id) {
+    
+    const currentSections = resumeData?.section_order || ["header", "summary", "experience", "education", "skills"];
+
+    const oldIndex = currentSections.indexOf(active.id as string);
+    const newIndex = currentSections.indexOf(over.id as string);
+
+    const newOrder = arrayMove(currentSections, oldIndex, newIndex);
+
+    updateField("section_order", null, newOrder);
+  }
+};
+  const handleSave = async () => {
+    try{
+      const responde=await api.patch("profile/",resumeData)
+      if (responde.status === 200 || responde.status === 201) {
+        useResumeStore.getState().markAsSaved()
+      toast.success("Resume saved successfully!");}
+    }catch (error) {
+        console.error(error);
+        toast.error("Failed to save changes. Please try again.");
+      }
+  }
+
+  if (loading) return <div className="flex justify-center items-center h-screen">Loading...</div>;
 
   return (
-    <DndContext
-      id="resume-dnd-context"
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragEnd={handleDragEnd}
-      modifiers={[restrictToVerticalAxis, restrictToParentElement]}
-    >
-      <div className="flex min-h-screen bg-linear-to-r from-pink-300 via-purple-300 to-indigo-400">
+    <div className="flex min-h-screen bg-linear-to-r from-pink-300 via-purple-300 to-indigo-400">
+      
+      <DndContext
+        id="sidebar-dnd-context"
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragOver={handleDragOver} 
+        modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+      >
         <SideBar sections={sections} />
-        <Resume sections={sections}  />
-      </div>
-    </DndContext>
+      </DndContext>
+
+      <main className="flex-1 p-5 flex justify-center overflow-y-auto">
+         <Resume sections={sections} data={resumeData}/>
+      </main>
+
+
+      <button 
+        onClick={handleSave}
+        className="fixed bottom-8 hover:cursor-pointer right-8 bg-blue-600 text-white px-6 py-3 rounded-full shadow-2xl hover:bg-blue-700 transition-all"
+      >
+        Save Changes
+      </button>
+      
+    </div>
   );
 }

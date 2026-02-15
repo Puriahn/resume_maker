@@ -1,41 +1,42 @@
+import { useResumeStore } from "../store/store";
 import EditableText from "../utils/Editable";
+import ProfileImage from './Image';
 
-export default function Header() {
+export default function Header({data}:any) {
   return (
-    <div className="flex  justify-between items-center">
+    <div className="flex justify-between items-center">
       <div>
         <EditableText
-          name="name"
-          initialValue="Your Name"
-          className="text-4xl font-extrabold text-gray-800 block"
+        
+          name="personal_info"
+          section="name"
+          initialValue={data.personal_info.name||"Your Name"}
+          className="text-xl md:text-3xl font-extrabold text-[#1f2937] block"
           maxLength={20}
         />
-        <div className="flex items-center gap-x-5">
+        <div className="block md:flex items-center gap-x-5">
           <EditableText
-            name="job"
-            initialValue="Job Title"
-            className="text-blue-400 font-medium text-lg"
+          name="personal_info"
+            section="job"
+            initialValue={data.personal_info.job||"Job Title"}
+            className="text-blue-400 font-medium text-xs md:text-sm"
             maxLength={20}
           />
           <div>
+            <div
+            className="text-blue-400 font-medium text-xs md:text-sm pl-1"
+            >{data.personal_info.email}</div>
             <EditableText
-              name="email"
-              initialValue="Email"
-              className="text-blue-400  text-sm"
-              maxLength={30}
-            />
-            <EditableText
-              name="phone number"
-              initialValue="Phone Number"
-              className="text-blue-400 text-sm"
+            name="personal_info"
+              section="phone"
+              initialValue={data.personal_info.phone||"Phone Number"}
+              className="text-blue-400 text-xs md:text-sm"
               maxLength={13}
             />
           </div>
         </div>
       </div>
-      <div>
-        <img className="size-18" src="/profile.png" alt="Resume Avatar" />
-      </div>
+      <ProfileImage data={data}/>
     </div>
   );
 }

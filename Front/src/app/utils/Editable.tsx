@@ -1,14 +1,17 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
+import { useResumeStore } from "../store/store";
 
 export default function EditableText({
   initialValue,
   name,
   className,
+  section,
   placeholder = "Click to edit...",
-  maxLength = 200
+  maxLength = 200,
 }: {
-  name:string;
+  name: string;
+  section:string;
   initialValue: string;
   className: string;
   placeholder?: string;
@@ -17,6 +20,7 @@ export default function EditableText({
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(initialValue);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const updateDynamicField = useResumeStore((state) => state.updateDynamicField);
 
   const adjustHeight = () => {
     const textarea = textareaRef.current;
@@ -30,7 +34,14 @@ export default function EditableText({
     if (isEditing) adjustHeight();
   }, [isEditing, value]);
 
-  const handleFinishEditing = () => setIsEditing(false);
+  const handleFinishEditing = () => {
+    setIsEditing(false);
+
+    if (value !== initialValue) {
+  updateDynamicField(name, section, value);
+    }
+  };
+
 
   if (isEditing) {
     return (
@@ -38,7 +49,11 @@ export default function EditableText({
         <textarea
           ref={textareaRef}
           autoFocus
-          maxLength={maxLength} 
+          onFocus={(e) => {
+            const val = e.target.value;
+            e.target.setSelectionRange(val.length, val.length);
+          }}
+          maxLength={maxLength}
           value={value}
           onChange={(e) => setValue(e.target.value)}
           onBlur={handleFinishEditing}
