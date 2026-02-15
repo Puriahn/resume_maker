@@ -47,11 +47,11 @@ const ProfileImage = ({ data }: any) => {
   console.log(preview)
   return (
     <div className="relative">
-      {false ? (
+      {data.personal_info?.img ? (
         <img
           src={data.personal_info.img}
           alt="Profile"
-          className="w-32 h-32 rounded-full mb-2 shadow-primay shadow-md"
+          className="size-18 rounded-full mb-2 shadow-primay shadow-md"
         />
       ) : (
         <>
