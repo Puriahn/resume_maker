@@ -2,6 +2,29 @@ from django.contrib.auth.password_validation import validate_password
 from django.core import exceptions
 from rest_framework import serializers
 from .models import User, Skill, Summary, Education, Experience
+import base64
+import uuid
+from django.core.files.base import ContentFile
+from rest_framework import serializers
+
+
+class Base64ImageField(serializers.ImageField):
+    """
+    A custom field to allow uploading images via base64 strings in JSON.
+    """
+    def to_internal_value(self, data):
+        # Check if this is a base64 string
+        if isinstance(data, str) and data.startswith('data:image'):
+            # format: "data:image/png;base64,iVBORw0KGgo..."
+            try:
+                format, imgstr = data.split(';base64,')
+                ext = format.split('/')[-1]  # Get extension (png, jpg, etc.)
+                file_name = f"{uuid.uuid4()}.{ext}"
+                data = ContentFile(base64.b64decode(imgstr), name=file_name)
+            except (ValueError, TypeError):
+                raise serializers.ValidationError("Invalid image format.")
+
+        return super().to_internal_value(data)
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
@@ -127,7 +150,8 @@ class PersonalInfoSerializer(serializers.Serializer):
     phone = serializers.CharField(source='phone_number', allow_null=True)
     email = serializers.EmailField()
     name = serializers.CharField(source='full_name', allow_null=True)
-    img = serializers.ImageField(source='image', allow_null=True)
+    # img = serializers.ImageField(source='image', allow_null=True)
+    img = Base64ImageField(source='image', allow_null=True, required=False)
     job = serializers.CharField(source='job_title', allow_null=True)
 
 
