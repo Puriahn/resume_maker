@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-5x&z-(p7y!w2xdv*7n&v5=%o2rn38cd59%hqcz+&btobp!#9tn
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 AUTH_USER_MODEL = 'accounts.User'
 
@@ -45,11 +45,13 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'drf_spectacular',
     'corsheaders',
+    
 ]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -64,6 +66,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost",
 ]
 CORS_ALLOW_CREDENTIALS = True
+
 # CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'core.urls'
@@ -167,5 +170,5 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = ''
-EMAIL_HOST_PASSWORD = ''
+EMAIL_HOST_USER = 'hajinasiri.puria1382@gmail.com'
+EMAIL_HOST_PASSWORD = 'cmjg ndko qeqj kcze'

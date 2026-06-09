@@ -11,7 +11,6 @@ const getOptions = async () => {
 
 
 export const setAccessToken = async (token: string) => {
-  console.log(token)
   const options = await getOptions();
   await setCookie("access_token", token, {
     ...options,

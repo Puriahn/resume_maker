@@ -10,7 +10,7 @@ export default function Education({data}:any){
          <div className="space-y-4">
            <div className="relative group">
              
-             <div className="flex gap-x-3 items-center">
+------             <div className="flex gap-x-3 items-center">
                <div className="">
                  <EditableText
                    name="educations"
